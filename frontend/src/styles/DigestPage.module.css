@@ -1,0 +1,28 @@
+.feed {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--space-xl) 0;
+}
+
+.eof {
+  text-align: center;
+  padding: var(--space-xl) 0;
+  font-family: var(--font-mono);
+  color: var(--ink-low);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.eof::before,
+.eof::after {
+  content: '';
+  height: 1px;
+  width: 40px;
+  background-color: var(--wire);
+}

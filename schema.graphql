@@ -1,0 +1,62 @@
+type AuthResult {
+  success: Boolean!
+  username: String
+  sessionToken: String
+  error: String
+}
+
+type Bullet {
+  text: String!
+  urls: [String!]!
+}
+
+type ClusterSummary {
+  id: Int!
+  label: String!
+  summary: String!
+  bullets: [Bullet!]!
+  tweetCount: Int!
+  totalImportance: Float!
+}
+
+type DigestResult {
+  clusters: [ClusterSummary!]!
+}
+
+type JobStatus {
+  jobId: ID!
+  status: String!
+  steps: [StepStatus!]!
+  progress: Int!
+  error: String
+}
+
+type Mutation {
+  twitterLogin(username: String!, cookiesJson: String!): AuthResult!
+  twitterLogout: Boolean!
+  fetchTimeline: JobStatus!
+  uploadTimeline(file: Upload!): JobStatus!
+  runPipeline(jobId: ID!): JobStatus!
+}
+
+type Query {
+  me: UserProfile
+  jobStatus(jobId: ID!): JobStatus
+  digest(jobId: ID!): DigestResult
+}
+
+type StepStatus {
+  id: String!
+  name: String!
+  status: String!
+  elapsed: Float
+}
+
+"""Represents a file upload."""
+scalar Upload
+
+type UserProfile {
+  id: ID!
+  twitterUsername: String!
+  latestJobId: ID
+}

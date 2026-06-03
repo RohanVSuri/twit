@@ -1,0 +1,13 @@
+git+https://github.com/PawiX25/twikit.git@fix/keyerror-optional-fields
+python-dotenv
+sentence-transformers
+umap-learn
+hdbscan
+anthropic
+faiss-cpu
+flask
+flask_cors
+dotenv
+strawberry-graphql
+flask_sqlalchemy
+cryptography

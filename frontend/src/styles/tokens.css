@@ -1,0 +1,23 @@
+:root {
+  /* Colors */
+  --void:    #030303;
+  --surface: #0a0b0c;
+  --ink-high: #ffffff;
+  --ink-med:  #a0a3a8;
+  --ink-low:  #4a4d54;
+  --wire:     #1f2124;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+
+  /* Spacing */
+  --space-sm: 0.5rem;
+  --space-md: 1.5rem;
+  --space-lg: 3rem;
+  --space-xl: 6rem;
+
+  /* Misc */
+  --radius: 0px;
+}

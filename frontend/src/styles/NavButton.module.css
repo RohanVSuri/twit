@@ -1,0 +1,26 @@
+.btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-low);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.btn:hover:not(.disabled) {
+  color: var(--ink-high);
+}
+
+.btn.active {
+  color: var(--ink-high);
+}
+
+.btn.disabled {
+  opacity: 0.4;
+  cursor: default;
+}

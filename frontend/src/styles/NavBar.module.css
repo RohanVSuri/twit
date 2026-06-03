@@ -1,0 +1,40 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--wire);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-low);
+  position: sticky;
+  top: 0;
+  background-color: rgba(3, 3, 3, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.brand {
+  color: var(--ink-high);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.brand::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--ink-high);
+  flex-shrink: 0;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}

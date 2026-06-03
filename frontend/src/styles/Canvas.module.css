@@ -1,0 +1,13 @@
+.canvas {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh;
+  background-color: var(--void);
+  border-left: 1px solid var(--wire);
+  border-right: 1px solid var(--wire);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}

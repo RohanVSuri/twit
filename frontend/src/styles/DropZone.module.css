@@ -1,0 +1,105 @@
+.zone {
+  width: 100%;
+  max-width: 42rem;
+  aspect-ratio: 16 / 9;
+  border: 1px dashed var(--ink-low);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  cursor: pointer;
+  position: relative;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.3s ease;
+  overflow: hidden;
+}
+
+.zone:hover,
+.zone.dragOver {
+  border-color: var(--ink-med);
+  background-color: var(--surface);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-color: #ffffff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.zone:hover .overlay,
+.zone.dragOver .overlay {
+  opacity: 0.05;
+}
+
+.zone.accepted {
+  border-style: solid;
+  border-color: var(--wire);
+}
+
+.plusBtn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wire);
+  background: transparent;
+  color: var(--ink-med);
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.zone:hover .plusBtn,
+.zone.dragOver .plusBtn {
+  color: var(--ink-high);
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  color: var(--ink-high);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: letter-spacing 0.2s ease;
+}
+
+.zone:hover .title,
+.zone.dragOver .title {
+  letter-spacing: 0.2em;
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-low);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-med);
+  text-transform: none;
+  letter-spacing: 0.05em;
+}
+
+.hiddenInput {
+  display: none;
+}

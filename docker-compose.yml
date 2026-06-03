@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:18
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=timeline
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql
+      - ./.snapshots/init.sql:/docker-entrypoint-initdb.d/init.sql
+volumes:
+  db:
+    driver: local

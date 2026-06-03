@@ -1,0 +1,94 @@
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: var(--space-md);
+}
+
+.fetchSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.fetchButton {
+  width: 100%;
+  background: var(--ink-high);
+  color: var(--void);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1rem;
+  transition: opacity 0.15s;
+}
+
+.fetchButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.fetchButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.runButton {
+  width: 100%;
+  max-width: 480px;
+  background: transparent;
+  color: var(--ink-high);
+  border: 1px solid var(--wire);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.9rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.runButton:hover:not(:disabled) {
+  border-color: var(--ink-low);
+  color: var(--ink-high);
+}
+
+.runButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.latestLink {
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-low);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.latestLink:hover {
+  color: var(--ink-med);
+}
+
+.fetchError {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #ff4d4d;
+  text-align: center;
+}
+
+.fetchDivider {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-low);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

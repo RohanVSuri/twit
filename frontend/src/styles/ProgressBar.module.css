@@ -1,0 +1,37 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-med);
+}
+
+.pct {
+  color: var(--ink-high);
+}
+
+.track {
+  width: 100%;
+  height: 1px;
+  background-color: var(--wire);
+  position: relative;
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: var(--ink-high);
+  transition: width 0.5s ease;
+}
