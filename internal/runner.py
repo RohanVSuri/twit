@@ -29,9 +29,6 @@ def _run(job_id: str, app) -> None:
             db.session.commit()
 
         job = db.session.get(Job, job_id)
-        job.status = "running"
-        db.session.commit()
-
         try:
             with open(job.file_path) as f:
                 raw_tweets = json.load(f)
@@ -71,7 +68,23 @@ def _run(job_id: str, app) -> None:
 
 
 def start(job: Job) -> None:
+    from internal.db import db
+
     app = current_app._get_current_object()
     job_id = str(job.id)
+
+    # Atomically claim the job: only the caller that flips queued -> running
+    # spawns the pipeline thread. This guards against duplicate run_pipeline
+    # requests racing each other (e.g. React StrictMode double-invoking the
+    # mutation in dev).
+    rows = (
+        db.session.query(Job)
+        .filter_by(id=job_id, status="queued")
+        .update({"status": "running"})
+    )
+    db.session.commit()
+    if rows != 1:
+        return
+
     t = threading.Thread(target=_run, args=(job_id, app), daemon=True)
     t.start()

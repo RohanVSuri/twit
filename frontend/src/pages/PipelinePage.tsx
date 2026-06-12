@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Canvas } from '@/components/Canvas';
 import { NavBar } from '@/components/NavBar';
@@ -13,8 +13,12 @@ export function PipelinePage() {
   const jobId: string = state?.jobId ?? '';
   const { steps, progress, activeMessage, isDone, isError, start } = usePipeline();
 
+  const startedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (jobId) start(jobId);
+    if (jobId && startedRef.current !== jobId) {
+      startedRef.current = jobId;
+      start(jobId);
+    }
   }, [jobId, start]);
 
   useEffect(() => {

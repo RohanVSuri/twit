@@ -25,7 +25,13 @@ from pathlib import Path
 
 import hdbscan
 import numpy as np
+import threading
 import umap
+
+# Numba's default workqueue threading layer is not thread-safe.
+# Jobs run in background threads (see runner.py), so we serialize UMAP
+# calls with a process-wide lock to prevent the workqueue crash.
+_umap_lock = threading.Lock()
 
 from pipeline.types import Cluster, Tweet
 
@@ -62,7 +68,8 @@ class Clusterer:
             random_state=self.random_state,
             metric="cosine",
         )
-        reduced = reducer.fit_transform(embeddings)
+        with _umap_lock:
+            reduced = reducer.fit_transform(embeddings)
 
         labels, count = self._sweep_hdbscan(reduced, len(tweets))
 

@@ -116,7 +116,7 @@ async def get_client(cookies: dict | None = None) -> Client:
 
 async def fetch_todays_tweets(client: Client) -> list:
     """Fetch all tweets from the last 24 hours."""
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=12)
     tweets = []
 
     print(f"\nFetching tweets since {cutoff.strftime('%Y-%m-%d %H:%M')} UTC...")
