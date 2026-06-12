@@ -1,5 +1,9 @@
 # X Timeline Digest
 
+## Example
+<img width="1438" height="786" alt="Screenshot 2026-06-12 at 4 30 49 PM" src="https://github.com/user-attachments/assets/1c88e42b-3cfa-496d-b9f1-31081ab03caa" />
+<img width="1440" height="783" alt="Screenshot 2026-06-12 at 4 31 18 PM" src="https://github.com/user-attachments/assets/aa2f4a68-c19d-4e28-8c3f-b21d451359d1" />
+
 Fetches the last 24 hours of tweets from your Twitter/X following feed and produces a structured digest: topics are clustered, ranked by engagement, and summarized using Claude.
 
 **Pipeline stages**
