@@ -132,3 +132,51 @@
   color: var(--ink-med);
   border-color: var(--ink-low);
 }
+
+.sourceWrap {
+  position: relative;
+  display: inline-block;
+}
+
+.tweetPreview {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 260px;
+  padding: var(--space-md);
+  background-color: var(--surface);
+  border: 1px solid var(--wire);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+}
+
+.sourceWrap:hover .tweetPreview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tweetPreviewAuthor {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-high);
+  margin-bottom: var(--space-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tweetPreviewHandle {
+  color: var(--ink-low);
+}
+
+.tweetPreviewText {
+  font-size: 0.85rem;
+  color: var(--ink-med);
+  line-height: 1.5;
+}

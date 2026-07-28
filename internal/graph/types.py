@@ -34,9 +34,18 @@ class JobStatus:
 
 
 @strawberry.type
+class TweetSource:
+    url: str
+    text: str
+    author_name: str
+    author_handle: str
+
+
+@strawberry.type
 class Bullet:
     text: str
     urls: list[str]
+    sources: list[TweetSource]
 
 
 @strawberry.type

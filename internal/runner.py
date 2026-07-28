@@ -1,20 +1,36 @@
+import asyncio
 import json
 import time
 import threading
+from pathlib import Path
 
 from internal.models.job import Job, Step
 from flask import current_app
 
+UPLOADS_DIR = Path(__file__).parent.parent / "uploads"
+
+
+def _run_async(coro):
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
 def _run(job_id: str, app) -> None:
     with app.app_context():
         from internal.db import db
+        from internal.crypto import decrypt
+        from internal.models.user import User
+        from pipeline.fetch import get_client, fetch_todays_tweets, save_tweets
         from pipeline.score import score_tweets
         from pipeline.embed import Embedder
         from pipeline.cluster import Clusterer
         from pipeline.summarize import Summarizer
 
-        def get_step(step_key: str) -> Step:
-            return db.session.query(Step).filter_by(job_id=job_id, step_key=step_key).one()
+        def get_step(step_key: str) -> Step | None:
+            return db.session.query(Step).filter_by(job_id=job_id, step_key=step_key).first()
 
         def start_step(step_key: str) -> float:
             step = get_step(step_key)
@@ -30,6 +46,32 @@ def _run(job_id: str, app) -> None:
 
         job = db.session.get(Job, job_id)
         try:
+            if get_step("fetch"):
+                t0 = start_step("fetch")
+                user = db.session.get(User, job.user_id)
+                cookies_list = json.loads(decrypt(user.cookies_encrypted))
+                cookies_dict = {c["name"]: c["value"] for c in cookies_list}
+
+                async def _fetch():
+                    client = await get_client(cookies=cookies_dict)
+                    tweets = await fetch_todays_tweets(client)
+                    UPLOADS_DIR.mkdir(exist_ok=True)
+                    return save_tweets(tweets, output_dir=str(UPLOADS_DIR))
+
+                try:
+                    fetched_path = _run_async(_fetch())
+                except Exception as e:
+                    msg = str(e)
+                    if any(k in msg.lower() for k in ("auth", "401", "unauthorized", "forbidden")):
+                        user.cookies_encrypted = None
+                        db.session.commit()
+                        raise ValueError("Twitter session expired. Please log in again.") from e
+                    raise
+
+                job.file_path = str(fetched_path)
+                db.session.commit()
+                finish_step("fetch", t0)
+
             with open(job.file_path) as f:
                 raw_tweets = json.load(f)
 

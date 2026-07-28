@@ -1,5 +1,7 @@
 from internal.db import db
 
+FETCH_STEP = ("fetch", "FETCHING TIMELINE")
+
 STEP_CONFIGS = [
     ("score",     "SCORING & FILTERING"),
     ("embed",     "EMBEDDING TWEETS"),
@@ -60,11 +62,12 @@ class Job(db.Model):
         }
 
 
-def create_job(file_path: str, user_id=None) -> Job:
+def create_job(file_path: str, user_id=None, include_fetch: bool = False) -> Job:
     job = Job(file_path=file_path, user_id=user_id)
     db.session.add(job)
     db.session.flush()  # get the UUID assigned
-    for i, (key, name) in enumerate(STEP_CONFIGS):
+    step_configs = ([FETCH_STEP] if include_fetch else []) + STEP_CONFIGS
+    for i, (key, name) in enumerate(step_configs):
         db.session.add(Step(job_id=job.id, step_key=key, name=name, position=i))
     db.session.commit()
     db.session.refresh(job)

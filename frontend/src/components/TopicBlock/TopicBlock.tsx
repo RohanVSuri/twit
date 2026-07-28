@@ -36,7 +36,30 @@ export function TopicBlock({ cluster, index, maxImportance }: TopicBlockProps) {
             {cluster.bullets.map((bullet, i) => (
               <li key={i} className={styles.bullet}>
                 <span className={styles.bulletText}>{bullet.text}</span>
-                {bullet.urls.length > 0 && (
+                {bullet.sources.length > 0 && (
+                  <span className={styles.sources}>
+                    {bullet.sources.map((source, j) => (
+                      <span key={j} className={styles.sourceWrap}>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.sourceLink}
+                        >
+                          ↗
+                        </a>
+                        <div className={styles.tweetPreview} role="tooltip">
+                          <div className={styles.tweetPreviewAuthor}>
+                            {source.authorName}{' '}
+                            <span className={styles.tweetPreviewHandle}>@{source.authorHandle}</span>
+                          </div>
+                          <p className={styles.tweetPreviewText}>{source.text}</p>
+                        </div>
+                      </span>
+                    ))}
+                  </span>
+                )}
+                {bullet.sources.length === 0 && bullet.urls.length > 0 && (
                   <span className={styles.sources}>
                     {bullet.urls.map((url, j) => (
                       <a

@@ -11,3 +11,5 @@ dotenv
 strawberry-graphql
 flask_sqlalchemy
 cryptography
+modal
+numpy

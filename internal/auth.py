@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from flask import request
+from internal.crypto import hash_token
 from internal.db import db
 from internal.models.user import User
 
@@ -10,4 +13,9 @@ def get_current_user() -> User | None:
     token = auth[7:].strip()
     if not token:
         return None
-    return db.session.query(User).filter_by(session_token=token).first()
+    user = db.session.query(User).filter_by(session_token=hash_token(token)).first()
+    if not user:
+        return None
+    if user.session_token_expires_at and user.session_token_expires_at < datetime.utcnow():
+        return None
+    return user

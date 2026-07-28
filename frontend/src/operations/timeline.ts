@@ -97,6 +97,12 @@ export const DIGEST = gql`
         bullets {
           text
           urls
+          sources {
+            url
+            text
+            authorName
+            authorHandle
+          }
         }
         tweetCount
         totalImportance

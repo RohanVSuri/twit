@@ -43,9 +43,17 @@ class Cluster(TypedDict):
     embeddings: Any      # np.ndarray rows for this cluster (float32, L2-normalized)
 
 
+class TweetSource(TypedDict):
+    url: str
+    text: str            # original tweet text (URL-stripped), for hover preview
+    author_name: str
+    author_handle: str
+
+
 class Bullet(TypedDict):
-    text: str         # one specific event, 1–2 sentences
-    urls: list[str]   # source tweet URLs (may be multiple if synthesized)
+    text: str                    # one specific event, 1–2 sentences
+    urls: list[str]              # source tweet URLs (may be multiple if synthesized)
+    sources: list[TweetSource]   # per-tweet preview data, aligned with urls
 
 
 class ClusterSummary(TypedDict):

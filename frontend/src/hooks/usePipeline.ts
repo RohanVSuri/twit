@@ -5,6 +5,7 @@ import type { JobStatusQuery, JobStatusQueryVariables, RunPipelineMutation, RunP
 import { RUN_PIPELINE, JOB_STATUS } from '@/operations/timeline';
 
 const STEP_MESSAGES: Record<string, string> = {
+  fetch:     'FETCHING TIMELINE...',
   score:     'SCORING TWEETS...',
   embed:     'EMBEDDING TWEETS...',
   cluster:   'CLUSTERING TOPICS...',

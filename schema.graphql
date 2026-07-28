@@ -8,6 +8,7 @@ type AuthResult {
 type Bullet {
   text: String!
   urls: [String!]!
+  sources: [TweetSource!]!
 }
 
 type ClusterSummary {
@@ -52,11 +53,18 @@ type StepStatus {
   elapsed: Float
 }
 
+type TweetSource {
+  url: String!
+  text: String!
+  authorName: String!
+  authorHandle: String!
+}
+
 """Represents a file upload."""
 scalar Upload
 
 type UserProfile {
   id: ID!
   twitterUsername: String!
-  latestJobId: ID
+  latestJobId: String
 }

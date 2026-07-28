@@ -1,6 +1,6 @@
-import asyncio
 import json
 import uuid
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import strawberry
@@ -12,6 +12,7 @@ from internal.graph.types import AuthResult, JobStatus, StepStatus
 import internal.runner as runner
 
 UPLOADS_DIR = Path(__file__).parent.parent.parent / "uploads"
+SESSION_TOKEN_TTL = timedelta(days=30)
 
 
 def _job_to_gql(job: Job) -> JobStatus:
@@ -25,20 +26,12 @@ def _job_to_gql(job: Job) -> JobStatus:
     )
 
 
-def _run_async(coro):
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
-
-
 @strawberry.type
 class Mutation:
     @strawberry.mutation
     def twitter_login(self, username: str, cookies_json: str) -> AuthResult:
         from internal.models.user import User
-        from internal.crypto import encrypt
+        from internal.crypto import encrypt, hash_token
 
         try:
             parsed = json.loads(cookies_json)
@@ -55,11 +48,13 @@ class Mutation:
             user = User(twitter_username=username)
             db.session.add(user)
 
+        raw_token = str(uuid.uuid4())
         user.cookies_encrypted = encrypt(json.dumps(parsed))
-        user.session_token = str(uuid.uuid4())
+        user.session_token = hash_token(raw_token)
+        user.session_token_expires_at = datetime.utcnow() + SESSION_TOKEN_TTL
         db.session.commit()
 
-        return AuthResult(success=True, username=username, session_token=user.session_token, error=None)
+        return AuthResult(success=True, username=username, session_token=raw_token, error=None)
 
     @strawberry.mutation
     def twitter_logout(self) -> bool:
@@ -67,14 +62,13 @@ class Mutation:
         user = get_current_user()
         if user:
             user.session_token = None
+            user.session_token_expires_at = None
             db.session.commit()
         return True
 
     @strawberry.mutation
     def fetch_timeline(self) -> JobStatus:
         from internal.auth import get_current_user
-        from internal.crypto import decrypt
-        from pipeline.fetch import get_client, fetch_todays_tweets, save_tweets
 
         user = get_current_user()
         if not user:
@@ -82,26 +76,7 @@ class Mutation:
         if not user.cookies_encrypted:
             raise ValueError("No Twitter credentials stored. Please log in again.")
 
-        cookies_list = json.loads(decrypt(user.cookies_encrypted))
-        cookies_dict = {c["name"]: c["value"] for c in cookies_list}
-
-        async def _fetch():
-            client = await get_client(cookies=cookies_dict)
-            tweets = await fetch_todays_tweets(client)
-            UPLOADS_DIR.mkdir(exist_ok=True)
-            return save_tweets(tweets, output_dir=str(UPLOADS_DIR))
-
-        try:
-            file_path = _run_async(_fetch())
-        except Exception as e:
-            msg = str(e)
-            if any(k in msg.lower() for k in ("auth", "401", "unauthorized", "forbidden")):
-                user.cookies_encrypted = None
-                db.session.commit()
-                raise ValueError("Twitter session expired. Please log in again.")
-            raise
-
-        job = create_job(str(file_path), user_id=user.id)
+        job = create_job("", user_id=user.id, include_fetch=True)
         runner.start(job)
         return _job_to_gql(job)
 
@@ -118,8 +93,12 @@ class Mutation:
 
     @strawberry.mutation
     def run_pipeline(self, job_id: strawberry.ID) -> JobStatus:
+        from internal.auth import get_current_user
+        user = get_current_user()
+        if not user:
+            raise ValueError("Not authenticated")
         job = db.session.get(Job, str(job_id))
-        if not job:
+        if not job or job.user_id != user.id:
             raise ValueError(f"Job {job_id} not found")
         if job.status == "queued":
             runner.start(job)

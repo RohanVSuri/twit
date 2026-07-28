@@ -5,9 +5,7 @@ interface PipelineLogProps {
   steps: PipelineStep[];
 }
 
-const TOTAL = 4;
-
-function StepRow({ step, index }: { step: PipelineStep; index: number }) {
+function StepRow({ step, index, total }: { step: PipelineStep; index: number; total: number }) {
   const { status, name, elapsed } = step;
 
   const indicatorClass =
@@ -38,7 +36,7 @@ function StepRow({ step, index }: { step: PipelineStep; index: number }) {
   return (
     <div className={styles.row}>
       <span className={`${styles.indicator} ${indicatorClass}`}>{indicator}</span>
-      <span className={`${styles.stepNum} ${stepNumClass}`}>[{index + 1}/{TOTAL}]</span>
+      <span className={`${styles.stepNum} ${stepNumClass}`}>[{index + 1}/{total}]</span>
       <span className={`${styles.name} ${nameClass}`}>{name}</span>
       <span className={styles.timing}>{timing}</span>
     </div>
@@ -49,7 +47,7 @@ export function PipelineLog({ steps }: PipelineLogProps) {
   return (
     <div className={styles.log}>
       {steps.map((step, i) => (
-        <StepRow key={step.id} step={step} index={i} />
+        <StepRow key={step.id} step={step} index={i} total={steps.length} />
       ))}
     </div>
   );

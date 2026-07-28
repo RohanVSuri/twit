@@ -1,3 +1,4 @@
+import hashlib
 import os
 from cryptography.fernet import Fernet
 
@@ -15,3 +16,7 @@ def encrypt(plaintext: str) -> str:
 
 def decrypt(ciphertext: str) -> str:
     return Fernet(_key()).decrypt(ciphertext.encode()).decode()
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()

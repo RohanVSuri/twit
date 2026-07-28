@@ -2,7 +2,7 @@ import strawberry
 
 from internal.db import db
 from internal.models.job import Job
-from internal.graph.types import JobStatus, StepStatus, DigestResult, ClusterSummary, Bullet, UserProfile
+from internal.graph.types import JobStatus, StepStatus, DigestResult, ClusterSummary, Bullet, TweetSource, UserProfile
 
 
 @strawberry.type
@@ -27,8 +27,12 @@ class Query:
 
     @strawberry.field
     def job_status(self, job_id: strawberry.ID) -> JobStatus | None:
+        from internal.auth import get_current_user
+        user = get_current_user()
+        if not user:
+            return None
         job = db.session.get(Job, str(job_id))
-        if not job:
+        if not job or job.user_id != user.id:
             return None
         d = job.to_status_dict()
         return JobStatus(
@@ -41,12 +45,23 @@ class Query:
 
     @strawberry.field
     def digest(self, job_id: strawberry.ID) -> DigestResult | None:
+        from internal.auth import get_current_user
+        user = get_current_user()
+        if not user:
+            return None
         job = db.session.get(Job, str(job_id))
-        if not job or job.status != "complete" or not job.summaries:
+        if not job or job.user_id != user.id or job.status != "complete" or not job.summaries:
             return None
         clusters = []
         for c in job.summaries:
-            bullets = [Bullet(text=b["text"], urls=b["urls"]) for b in c.get("bullets", [])]
+            bullets = [
+                Bullet(
+                    text=b["text"],
+                    urls=b["urls"],
+                    sources=[TweetSource(**s) for s in b.get("sources", [])],
+                )
+                for b in c.get("bullets", [])
+            ]
             clusters.append(ClusterSummary(
                 id=c["id"],
                 label=c["label"],

@@ -3,40 +3,20 @@ import { useNavigate } from 'react-router';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { Canvas } from '@/components/Canvas';
 import { NavBar } from '@/components/NavBar';
-import { DropZone } from '@/components/DropZone';
 import type { PipelineStatus } from '@/types';
-import type {
-  MeQuery,
-  UploadTimelineMutation, UploadTimelineMutationVariables,
-  FetchTimelineMutation,
-} from '@/types/__generated__/graphql';
-import { ME, UPLOAD_TIMELINE, FETCH_TIMELINE } from '@/operations/timeline';
+import type { MeQuery, FetchTimelineMutation } from '@/types/__generated__/graphql';
+import { ME, FETCH_TIMELINE } from '@/operations/timeline';
 import styles from '@/styles/UploadPage.module.css';
 
 export function UploadPage() {
   const navigate = useNavigate();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<PipelineStatus>('ready');
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const { data: meData } = useQuery<MeQuery>(ME);
   const latestJobId = meData?.me?.latestJobId;
 
-  const [uploadTimeline, { loading: uploading }] = useMutation<UploadTimelineMutation, UploadTimelineMutationVariables>(UPLOAD_TIMELINE);
   const [fetchTimeline, { loading: fetching }] = useMutation<FetchTimelineMutation>(FETCH_TIMELINE);
-
-  const handleFileAccepted = useCallback((file: File) => {
-    setUploadedFile(file);
-    setStatus('file-loaded');
-  }, []);
-
-  const handleRun = useCallback(async () => {
-    if (!uploadedFile) return;
-    setStatus('processing');
-    const result = await uploadTimeline({ variables: { file: uploadedFile } });
-    const jobId = result.data?.uploadTimeline?.jobId;
-    navigate('/pipeline', { state: { jobId } });
-  }, [uploadedFile, uploadTimeline, navigate]);
 
   const handleFetchTimeline = useCallback(async () => {
     setFetchError(null);
@@ -56,8 +36,6 @@ export function UploadPage() {
     }
   }, [fetchTimeline, navigate]);
 
-  const fetchDisabled = fetching || uploading || !!uploadedFile;
-
   return (
     <Canvas>
       <NavBar status={status} controls={<></>} />
@@ -66,7 +44,7 @@ export function UploadPage() {
           <button
             className={styles.fetchButton}
             onClick={handleFetchTimeline}
-            disabled={fetchDisabled}
+            disabled={fetching}
           >
             {fetching ? 'FETCHING...' : 'FETCH MY TIMELINE'}
           </button>
@@ -79,18 +57,7 @@ export function UploadPage() {
             </button>
           )}
           {fetchError && <p className={styles.fetchError}>{fetchError}</p>}
-          <p className={styles.fetchDivider}>— or drop a saved timeline —</p>
         </div>
-        <DropZone onFileAccepted={handleFileAccepted} />
-        {uploadedFile && (
-          <button
-            className={styles.runButton}
-            onClick={handleRun}
-            disabled={uploading}
-          >
-            {uploading ? 'LOADING...' : `RUN  ↑  ${uploadedFile.name}`}
-          </button>
-        )}
       </main>
     </Canvas>
   );

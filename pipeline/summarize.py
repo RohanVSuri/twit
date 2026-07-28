@@ -21,7 +21,7 @@ load_dotenv()
 from pipeline.score import embed_text, score_tweets
 from pipeline.embed import Embedder
 from pipeline.cluster import Clusterer
-from pipeline.types import Bullet, Cluster, ClusterSummary, Tweet
+from pipeline.types import Bullet, Cluster, ClusterSummary, Tweet, TweetSource
 from pipeline.prompts import MERGE_CLUSTERS_PROMPT, SUMMARIZE_CLUSTER_PROMPT
 
 import numpy as np
@@ -156,6 +156,7 @@ class Summarizer:
     def summarize_cluster(self, cluster: Cluster) -> ClusterSummary:
         """One Haiku call to summarize a single cluster."""
         id_to_url = {t["id"]: t.get("url", "") for t in cluster["tweets"]}
+        id_to_tweet = {t["id"]: t for t in cluster["tweets"]}
         total_importance = sum(t.get("importance_score", 0.0) for t in cluster["tweets"])
 
         # Sort by importance, cap at 50 tweets to save tokens
@@ -208,6 +209,16 @@ class Summarizer:
             Bullet(
                 text=b["text"],
                 urls=[id_to_url[sid] for sid in b.get("source_ids", []) if sid in id_to_url],
+                sources=[
+                    TweetSource(
+                        url=id_to_url[sid],
+                        text=embed_text(id_to_tweet[sid]),
+                        author_name=id_to_tweet[sid].get("user", {}).get("name", ""),
+                        author_handle=id_to_tweet[sid].get("user", {}).get("screen_name", ""),
+                    )
+                    for sid in b.get("source_ids", [])
+                    if sid in id_to_tweet
+                ],
             )
             for b in parsed.get("bullets", [])
             if b.get("text")
