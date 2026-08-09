@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "export-schema": "cd .. && ./venv/bin/strawberry export-schema internal.graph.schema:schema -o schema.graphql",
-    "codegen": "bun run export-schema && graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.1.1",
