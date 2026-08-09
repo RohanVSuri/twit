@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # auto-gen types
-src/types
+src/types/__generated__
