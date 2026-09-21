@@ -23,7 +23,8 @@ def _run(job_id: str, app) -> None:
         from internal.db import db
         from internal.crypto import decrypt
         from internal.models.user import User
-        from pipeline.fetch import get_client, fetch_todays_tweets, save_tweets
+        from pipeline.fetch import fetch_todays_tweets, save_tweets, SessionExpiredError
+        from twscrape import NoAccountError
         from pipeline.score import score_tweets
         from pipeline.embed import Embedder
         from pipeline.cluster import Clusterer
@@ -50,24 +51,23 @@ def _run(job_id: str, app) -> None:
                 t0 = start_step("fetch")
                 user = db.session.get(User, job.user_id)
                 cookies_list = json.loads(decrypt(user.cookies_encrypted))
-                cookies_dict = {c["name"]: c["value"] for c in cookies_list}
 
-                async def _fetch():
-                    client = await get_client(cookies=cookies_dict)
-                    tweets = await fetch_todays_tweets(client)
-                    UPLOADS_DIR.mkdir(exist_ok=True)
-                    return save_tweets(tweets, output_dir=str(UPLOADS_DIR))
-
+                # fetch_todays_tweets builds a temporary, single-account twscrape
+                # pool from these cookies, so concurrent jobs never share accounts.
                 try:
-                    fetched_path = _run_async(_fetch())
-                except Exception as e:
-                    msg = str(e)
-                    if any(k in msg.lower() for k in ("auth", "401", "unauthorized", "forbidden")):
-                        user.cookies_encrypted = None
-                        db.session.commit()
-                        raise ValueError("Twitter session expired. Please log in again.") from e
-                    raise
+                    tweets = _run_async(fetch_todays_tweets(cookies_list))
+                except SessionExpiredError as e:
+                    user.cookies_encrypted = None
+                    db.session.commit()
+                    raise ValueError("Twitter session expired. Please log in again.") from e
+                except NoAccountError as e:
+                    raise ValueError("Twitter is rate-limiting this account. Please try again later.") from e
 
+                if not tweets:
+                    raise ValueError("No tweets fetched from your timeline. Try again later.")
+
+                UPLOADS_DIR.mkdir(exist_ok=True)
+                fetched_path = save_tweets(tweets, output_dir=str(UPLOADS_DIR))
                 job.file_path = str(fetched_path)
                 db.session.commit()
                 finish_step("fetch", t0)

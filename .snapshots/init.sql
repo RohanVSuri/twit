@@ -4,6 +4,7 @@ CREATE TABLE users (
     twitter_username VARCHAR(255) UNIQUE NOT NULL,
     cookies_encrypted TEXT,
     session_token VARCHAR(255) UNIQUE,
+    session_token_expires_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

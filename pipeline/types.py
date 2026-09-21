@@ -17,7 +17,7 @@ class TweetUser(TypedDict, total=False):
 
 
 class Tweet(TypedDict, total=False):
-    # ── Core fields from twikit export ──────────────────────────────────
+    # ── Core fields from twscrape export ────────────────────────────────
     id: str
     text: str
     created_at: str

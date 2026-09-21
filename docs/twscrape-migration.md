@@ -1,11 +1,13 @@
 # twikit → twscrape migration
 
-Status as of 2026-09-13: **research and test fetch done; app code not yet migrated.**
+Status as of 2026-09-20: **app code migrated.** `requirements.txt`,
+`pipeline/fetch.py` and `internal/runner.py` now run on twscrape; the spike logic
+(§4) is ported into `pipeline/fetch.py`. A live 2-page fetch discovered a fresh
+queryId, produced app-compatible JSON, and `pipeline.score.score_tweets` ran on it
+unchanged. §6 below is the plan that was carried out; kept for reference.
 
 The test fetch (`scripts/twscrape_home_spike.py`) pulled a full 12-hour Following
 timeline through twscrape, and the output works with the existing scoring stage.
-The remaining work is porting that logic into `pipeline/fetch.py` and
-`internal/runner.py`.
 
 ---
 
@@ -206,4 +208,15 @@ Also available and unused so far: `bookmarkedCount` and `viewCount`. The note in
 | `uploads/timeline_twscrape.json` | New, gitignored: output of the full run (1,195 tweets) |
 | `docs/twscrape-migration.md` | This document |
 
-App code (`pipeline/`, `internal/`, `frontend/`, `requirements.txt`) is **unchanged**.
+App code migration (2026-09-20):
+
+| File | Change |
+|---|---|
+| `requirements.txt` | twikit fork → `twscrape==0.20.1` |
+| `pipeline/fetch.py` | Rewritten on twscrape: temp per-fetch pool, queryId discovery + fallback, GET paging via `_gql_items`, ordered `timeline_tweets` (skips ads/threads), `tweet_to_dict` per §5, `TWS_TELEMETRY=0`, `SessionExpiredError`. Dropped monkey patch, `login_and_get_cookies`, `get_client`, env-var password login. CLI (`python -m pipeline.fetch`) still reads `cookies.json`. |
+| `internal/runner.py` | Calls `fetch_todays_tweets(cookies_list)` (owns the temp pool); catches `SessionExpiredError` (clears cookies) and `NoAccountError`; treats 0 tweets as an error. |
+| `README.md`, `pipeline/score.py`, `pipeline/types.py` | twikit → twscrape wording; README 24h → 12h to match the code. |
+
+Frontend and the `twitter_login` mutation are unchanged. The expiry check now
+reads the account's `active` flag (surfaced as `SessionExpiredError`) instead of
+matching error text.

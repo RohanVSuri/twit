@@ -15,8 +15,9 @@ Two scores per tweet:
 The digest pipeline uses importance_score to select representative tweets per
 cluster. popularity_score is stored for reference.
 
-Note: twikit doesn't expose bookmark_count or impression_count.
-Retweets (is_retweet=True) are filtered out before scoring.
+Note: twscrape also exposes bookmarkedCount and viewCount, which the fetch
+stage does not currently surface. Retweets (is_retweet=True) are filtered out
+before scoring.
 """
 
 import math
